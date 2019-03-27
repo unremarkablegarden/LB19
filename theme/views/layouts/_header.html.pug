@@ -1,0 +1,165 @@
+//- -------------------------------- MENU ---------------------------------------
+.back-wrapper
+  a(href='#').back-arrow
+    i.icon-arrow-left
+
+nav#menu.hide
+  a(href='#').close
+    //- i.icon-close
+    img(src='/wp-content/uploads/2019/03/Close.png')
+
+  - $menu = wp_get_nav_menu_items('Navigation')
+  - foreach($menu as $m)
+    - $t = $m->title
+    - $u = $m->url
+    - $c = $t
+
+    if (strpos($t, 'NEWFORM') !== false)
+      - $t = 'NEW<b>FORM</b>'
+    if (strpos($t, 'QUIETLOUD') !== false)
+      - $t = 'QUIET<b>LOUD</b>'
+    
+    if ($t == 'Partners')
+      .partners Partners
+
+    if ($t == 'Social media')
+      .social-media &nbsp;
+
+    if ($t !== 'Partners' && $t !== 'Social media')
+      if ($t == 'Instagram' || $t == 'Twitter' || $t == 'Facebook')
+        - $class = strtolower($c)." social"
+      else
+        - $class = strtolower($c)
+      .menu-item(class=$class)
+        if (strpos($u, 'lb-agency') !== false)
+          a(href=$u)!= $t
+        else
+          if ($t == 'Instagram' || $t == 'Twitter' || $t == 'Facebook')
+            - $class = 'icon-social-'.strtolower($c)
+            a(href=$u, target="_blank")
+              i(class=$class)
+              //- span &nbsp;&nbsp;
+          else
+            span
+              a(href=$u, target="_blank")
+                span.text!= $t
+      
+
+//- ------------------------------ BANNERS ----------------------------------------------
+
+- $args = array('orderby' => rand, 'post_type' => 'banner', 'post_status' => 'publish', 'posts_per_page' => 10)
+- $banners = new WP_Query($args)
+
+.banners
+  while ($banners->have_posts())
+    - $banners->the_post()
+    - $logotype = types_render_field("logotype", array('raw'=>'true', 'size' => 'xlarge'))
+    if ($logotype == 1)
+      - $logotype = 'white'
+    else
+      - $logotype = 'black'
+    - $banner = types_render_field("aimg")
+    - preg_match_all('/(src)=("[^"]*")/i', $banner, $img)
+    - $src = $img[2][0]
+    - $style= "background-image: url(".$src.")"
+
+    .banner(style=$style, class=$logotype)
+      a(href="#", class=$logotype).menu-button
+        i.icon-menu
+      .inner(class=$logotype)
+        .section
+          - $title = '<span class="little">Little</span><span class="big">Big</span>'
+          - $url = get_bloginfo('url')
+          h1(class=$logotype).littlebig
+            a(href='#')!= $title
+              
+
+//- ------------------------------ ARTIST LIST ----------------------------------------------
+
+- $Q = new WP_Query(array('orderby' => 'title', 'order' => 'ASC', 'post_type' => 'artists', 'post_status' => 'publish', 'posts_per_page' => -1))
+
+if($Q->have_posts())
+  section.section.artists
+    while ($Q->have_posts())
+      - $Q->the_post()
+      span.artist(data-name=get_the_title())
+        a(href=get_permalink())
+          span= get_the_title()
+      span.separator.red 
+        span &nbsp;
+        span /
+        span &nbsp;
+
+//- -------------------------------- NEW ON LB --------------------------------------------
+
+- $Q1 = new WP_Query(array('orderby' => 'date', 'order' => 'DESC', 'post_type' => 'artists', 'post_status' => 'publish', 'posts_per_page' => 3))
+
+- $Q2 = new WP_Query(array('orderby' => 'date', 'order' => 'DESC', 'post_type' => 'artists', 'post_status' => 'publish', 'posts_per_page' => 3, 'offset' => 3))
+
+.new-artists
+  .new-artists-slider
+    .slide
+      .columns.is-gapless.is-mobile
+        while ($Q1->have_posts())
+          - $Q1->the_post()
+          - $banner = types_render_field('photo', array('output' => 'raw', 'size' => 'retina_thumb'))
+          
+          //- - preg_match_all('/(src)=("[^"]*")/i', $banner, $img)
+          //- - $src = $img[2][0]
+          - $src = $banner
+
+          - $croppos = types_render_field('croppos', array('raw'=>'true'))
+          if ($croppos == 1)
+            - $bgpos = 'top'
+          else if ($croppos == 2)
+            - $bgpos = 'center'
+          else
+            - $bgpos = 'bottom'
+          - $style= "background-image: url(".$src."); background-position: ".$bgpos." center;"
+          .column.is-4.artist(style=$style)
+            a(href=get_permalink())
+              .inner
+                span= get_the_title()
+    .slide
+      .columns.is-gapless.is-mobile
+        while ($Q2->have_posts())
+          - $Q2->the_post()
+          - $banner = types_render_field('photo')
+          - preg_match_all('/(src)=("[^"]*")/i', $banner, $img)
+          - $src = $img[2][0]
+          - $croppos = types_render_field('croppos', array('raw'=>'true'))
+          if ($croppos == 1)
+            - $bgpos = 'top'
+          else if ($croppos == 2)
+            - $bgpos = 'center'
+          else
+            - $bgpos = 'bottom'
+          - $style= "background-image: url(".$src."); background-position: ".$bgpos." center;"
+          .column.is-4.artist(style=$style)
+            a(href=get_permalink())
+              .inner
+                span= get_the_title()
+
+  .text New on LB
+ 
+
+//-  ------------------------------- EVENTS GRID --------------------------------
+- $Q = new WP_Query(array('orderby' => 'rand', 'order' => 'ASC', 'post_type' => 'special-events', 'post_status' => 'publish', 'posts_per_page' => 24))
+
+.events
+  h2 
+    span Special Events
+  .fold
+    #macy-container
+      while ($Q->have_posts())
+        - $Q->the_post()
+        .flyer
+          - $link = types_render_field("elink", array('output' => 'raw'))
+          - $flyer = types_render_field("eflyer", array('size' => 'retina_thumb'))
+          //- , 'output'=>'raw'
+          a(href=$link, target='_blank')
+            .img-wrap
+              - echo $flyer
+  .gradient &nbsp;
+  .more-wrapper
+    button.is-small.button.more Show more

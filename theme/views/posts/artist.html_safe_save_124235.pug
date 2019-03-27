@@ -1,0 +1,112 @@
+- the_post()
+
+post.artist
+  header.section.border-bottom
+    .booking
+      div
+        i.icon-bubbles
+        - $mail = strtolower(types_render_field('rep')).'@lb-agency.net'
+        a(href='#', data-email=$mail).copy
+          span &nbsp;&nbsp;
+          span.txt Represented by&nbsp;
+          span.rep.txt!= types_render_field('rep')
+        - if (types_render_field('rep2'))
+          - $mail = strtolower(types_render_field('rep')).'@lb-agency.net'
+          span &nbsp;
+          span.txt & &nbsp;
+          a(href='#', data-email=$mail).copy
+            span.rep.txt!= types_render_field('rep2')
+
+    h1(data-name=get_the_title()).artist= get_the_title()
+
+  - $banner = types_render_field('photo', array('size' => 'xlarge', 'output' => 'raw'))
+  - $src = $banner
+  
+  - $croppos = types_render_field('croppos', array('raw'=>'true'))
+  if ($croppos == 1)
+    - $bgpos = 'top'
+  else if ($croppos == 2)
+    - $bgpos = 'center'
+  else
+    - $bgpos = 'bottom'
+
+  - $style= "background-image: url(".$src."); background-position: ".$bgpos." center;"
+
+  .banner-wrapper
+    .banner(style=$style, class=$logotype)
+
+  .section.artist-text
+    .content
+      - $links['Website'] = types_render_field('artistwebsite', array('raw'=>'true'))
+      - $links['SoundCloud'] = types_render_field('artistsoundcloud', array('raw'=>'true'))
+      - $links['Twitter'] = types_render_field('artisttwitter', array('raw'=>'true'))
+      - $links['Facebook'] = types_render_field('artistfacebook', array('raw'=>'true'))
+      - $links['Instagram'] = types_render_field('artist-instagram', array('raw'=>'true'))
+      - $links['Assets'] = types_render_field('assets', array('raw'=>'true'))
+      - $total = 0
+      - foreach ($links as $link)
+        if (!empty($link))
+          - $total++
+      if ($total > 0)
+        .links
+          - foreach ($links as $key => $val)
+            if (!empty($val))
+              div
+                if ((!(substr($val, 0, 7) == 'http://')) && (!(substr($val, 0, 8) == 'https://')))
+                  - $val = 'http://' . $val;
+                if ($key == 'Assets')
+                  hr.assets
+                a(href=$val, target="_blank")
+                  if ($key == 'Website')
+                    - $class = 'icon-link'
+                  else if ($key == 'Assets')
+                    - $class = 'icon-map'
+                  else
+                    - $class = 'icon-social-'.strtolower($key)
+                  i(class=$class)
+                  span &nbsp;&nbsp;&nbsp;
+                  span= $key
+
+      - $bio = types_render_field('bio')
+      //- - $bio = str_replace('&nbsp;', ' ', $bio)
+      - $str = $bio
+      //- - $str = utf8_decode($str)
+      - $str = str_replace("&nbsp;", " ", $str)
+      - $str = preg_replace('/\s+/', ' ',$str)
+      - $str = trim($str)
+      - $bio = $str
+      span.bio!= $bio
+  
+  .section.videos
+    - global $post
+    - $slug = $post->post_name
+    - $Q = new WP_Query(array('orderby' => 'date', 'order' => 'DESC', 'post_type' => 'media', 'post_status' => 'publish', 'posts_per_page' => -1, 'tag' => $slug))
+    while ($Q->have_posts())
+      - $Q->the_post()
+      .media
+        //- h3!= get_the_title()
+        - $type = types_render_field('type')
+
+        
+
+        if ($type == 'Audio embed URL')
+          - $url = types_render_field('audio-url', array('output' => 'raw'))
+        else if ($type == 'Video embed URL')
+          - $url = types_render_field('video-url', array('output' => 'raw'))
+        else
+          - $url = types_render_field('web-url', array('output' => 'raw'))
+
+        //- h1!= $url
+
+        if (strpos($url, 'youtube') !== false || strpos($url, 'youtu.be') !== false)
+          - echo youtube($url)
+        else if (strpos($url, 'soundcloud') !== false)
+          - echo soundcloud($url)
+        else if (strpos($url, 'vimeo') !== false)
+          - echo vimeo($url)
+        else
+          div
+            i.icon-link
+            span &nbsp;&nbsp;
+            span
+              a(href=$url, target='_blank')!= get_the_title()

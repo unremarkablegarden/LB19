@@ -1,0 +1,20 @@
+doctype html
+html
+  head= render_partial("layouts/head")
+
+  - echo "<body "
+  - body_class()
+  - echo ">"
+
+
+  table.halves
+    tr
+      td.left.half
+        header.site-header= render_partial("layouts/header")
+
+      td#barba-wrapper.right.half
+        .main.barba-container= wl_yield()
+
+  //- footer.footer= render_partial("layouts/footer")
+
+  - wp_footer()

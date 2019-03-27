@@ -1,0 +1,14 @@
+- header("HTTP/1.1 404 File not found")
+.not-found
+  span
+    h1 
+      div 404
+      div Page
+      div not
+      div found
+//- h4
+  strong
+    | Sorry. The page
+    = $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]
+    | was moved or doesn't exist
+
